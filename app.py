@@ -9,11 +9,10 @@ weather_data = {
     'Seattle': {'temperature': 10, 'weather': 'Rainy'},
     'Austin': {'temperature': 32, 'weather': 'Hot'},
 }
-next_id = 1  # Next available ID for new cities
-
 @app.route('/weather/city/<city>', methods=['GET'])
 def get_city_weather(city):
     if city in weather_data:
+        print(weather_data)
         return jsonify(weather_data[city])
     else:
         return jsonify({'message': 'City not found'}), 404
@@ -21,17 +20,20 @@ def get_city_weather(city):
 @app.route('/weather/city', methods=['POST'])
 def post_city():
     global next_id
-    city = request.json['city']
-    temperature = request.json['temperature']
-    weather_data[next_id] = {'city': city, 'temperature': temperature}
-    next_id += 1
-    return jsonify({'message': 'City added successfully', 'id': next_id - 1}), 201
+    data = request.get_json()
+    city = data["city"]
+    temperature = data["temperature"]
+    weather = data["weather"]
+    weather_data[city] = { 'temperature': temperature,'weather': weather}
+    print(weather_data)
+    return jsonify({'message': 'City added successfully'}), 201
 
 @app.route('/weather/city/<city>', methods=['PATCH'])
 def patch_city(city):
-    temperature = request.json['temperature']
+    data = request.get_json()
     if city in weather_data:
-        weather_data[city]['temperature'] = temperature
+        weather_data[city]['temperature'] = data["temperature"]
+        weather_data[city]["weather"] = data["weather"]
         return jsonify({'message': 'City updated successfully'})
     else:
         return jsonify({'message': 'City not found'}), 404
